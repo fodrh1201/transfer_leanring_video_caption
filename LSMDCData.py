@@ -4,7 +4,6 @@ import os
 import hickle as hkl
 import h5py
 import numpy as np
-import Error
 
 # DataFrame Path
 
@@ -53,6 +52,9 @@ class LSMDCData:
         val_data = self.preprocessing(self.val_df, self.val_video)
         test_data = self.preprocessing(self.test_df, self.test_video)
         return train_data, val_data, test_data
+
+    def get_vocabulary(self):
+        return self.word_matrix, self.word_to_index, self.index_to_word
 
     def split_video_feature(self):
         len_list = [len(self.train_df), len(self.val_df), len(self.test_df)]
@@ -113,7 +115,7 @@ class LSMDCData:
     def read_video_features(network='resnet', layer='res5c'):
         feature_path = VIDEO_FEATURE_PATH
         if network.lower() == 'resnet':
-            feature_path = os.path.join(VIDEO_FEATURE_PATH, network.upper()+'_'+layer.lower()+'hdf5')
+            feature_path = os.path.join(VIDEO_FEATURE_PATH, network.upper()+'_'+layer.lower()+'.hdf5')
         elif network.lower() == 'googlenet' or network.lower() == 'google':
             feature_path = os.path.join(VIDEO_FEATURE_PATH, 'GOOGLE.hdf5')
         elif network.lower() == 'c3d':
@@ -121,6 +123,7 @@ class LSMDCData:
         else:
             raise Error("network and layer argument error. Cannot read features.")
 
+        print(feature_path)
         video_features = []
         with h5py.File(feature_path, 'r') as hf:
             video_keys = hf.keys()
